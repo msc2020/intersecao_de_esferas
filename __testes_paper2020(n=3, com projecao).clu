@@ -1,0 +1,140 @@
+DefVarsN3();
+:IPNS; exibe o Inner-Product-Null-Space
+:DRAW_POINT_AS_SPHERE;
+_BGColor = White;
+//:N3_WIRE;
+//:N3_SOLID;
+
+_FrameBoxSize = 0;
+SetPointSize(5);
+SetLineWidth(1.5);
+
+SetEvalPrec(12);
+// Set the number of decimal digits used 
+// when evaluating mathematical functions internally.  
+// maximo = 12
+
+SetTextPrec(12);
+// Set the number of decimal digits 
+// used when printing scalar values.
+
+// define esferas
+r1=1.3;
+c1=VecN3(-3,-1.1133,1.3268);
+S1=c1-((r1*r1)/2)*einf;
+:Color(0.200, 1.000, 0.200, 0.1);
+:S1;
+
+// define esferas
+r2=3.1102;
+c2=VecN3(-4,0,0);
+S2=c2-((r2*r2)/2)*einf;
+:Color(1.000, 0.200, 0.200, 0.1);
+:S2;
+
+// define casca esférica
+r3=1.50;
+:Black;
+:c3=VecN3(0,0,0);
+S3=c3-((r3*r3)/2)*einf;
+:Color(0.200, 0.200, 1.000, 0.05);
+S3;
+
+r3b=3.7;
+S3b=c3-((r3b*r3b)/2)*einf;
+:Color(0.200, 0.200, 1.000, 0.1);
+:S3b;
+
+// intersecao de S1 e S2 resultando no circulo C
+C=S1^S2;
+:Red;
+:C;
+
+// computa pares de ponto Pp1 e Pp2
+//Pp1=S3^C;
+Pp2=S3b^C;
+
+// extrai pontos de Pp2
+?P3=( sqrt((*(Pp2)).(*(Pp2)))-(*(Pp2)) )/( einf.(*(Pp2)) );
+?P4=-1*( sqrt((*(Pp2)).(*(Pp2)))+(*(Pp2)) )/( einf.(*(Pp2)) );
+:Blue;
+:P3;
+:Yellow;
+:P4;
+
+//extrai o centro do circulo
+:Black;
+Cnorm = C/(-einf*C);
+:centro = C*einf*C;
+?centro;
+?centro_2 = -0.5*(Cnorm*einf*Cnorm);
+
+// normaliza o ponto central m e vizualiza
+centro_norm = centro/(-centro.einf);
+?centro_norm;
+
+?centro_norm2 = centro_2/(-centro_2.einf);
+
+?centro_circ = VecE3(centro_norm);
+
+?raio_circ = sqrt(-(C*C)/((C.einf)*(C.einf)));
+
+
+// correção rafael: rafael
+?c3;
+? C_p = einf.C;
+?P=(c3.(1/C_p))*C_p;
+?P2=(c3.C_p)*(1/C_p);
+:Yellow;
+:*(P);
+?*(P);
+?(P+e0).einf;
+?a=c3.P;
+?a2=c3.P2;
+
+?d_c3_centro_circ = sqrt(-2*c3.centro_norm);
+//?d_c3_centro_circ = sqrt(-2*c3.centro_norm2);
+b = sqrt(d_c3_centro_circ*d_c3_centro_circ-a*a);
+?d_min = sqrt(a*a+(b-raio_circ)*(b-raio_circ));
+?d_max = sqrt(a*a+(b+raio_circ)*(b+raio_circ));
+
+// diferença corrigida
+?x=max([d_min,r3]);
+
+// define casca esférica
+// com raio reduzido
+r4=x;
+c4=VecN3(0,0,0);
+S4=c4-((r4*r4)/2)*einf;
+:Color(0.100, 0.100, 0.3000, 0.1);
+:S4;
+
+r4b=3.7;
+S4b=c4-((r4b*r4b)/2)*einf;
+:Color(0.100, 0.100, 0.300, 0.1);
+:S4b;
+
+// plot
+i=0;
+nn=6;
+
+crmin=r4;
+crmax=r4b;
+loop
+{
+if (i > nn)
+  break;
+//se i<=n, entao executa esta parte
+//?i;
+cr=crmin+(crmax-crmin)/nn*i; //c = cmin + delta_c
+r=cr;
+:Color(0.100, 0.100, 0.3000, 0.018);
+Sr=c4-(r*r)/2*einf;
+SetPointSize(3);
+:Color(0.5, 0.9, 0.9, 1/(0.1*i+1));
+//:Black;
+:Ppr=C^Sr;
+
+
+i = i + 1;
+}
