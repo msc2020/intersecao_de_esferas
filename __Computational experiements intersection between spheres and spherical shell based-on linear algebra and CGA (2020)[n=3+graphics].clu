@@ -1,0 +1,147 @@
+/**********************************************/
+/* Code for example of the paper "Linear and */
+/* Geometric Algebra Approaches for Sphere   */
+/* and Spherical Shell"                      */
+/* submitted for SIAGA in nov. 2020 *        */
+/**********************************************/
+
+/***
+- Objectives: 
+   (1) compute the intersection of two spheres 
+       and one spherical shell using AGC; 
+   (2)illustrate the geometric aspect for the
+	  reduction of interval of the final 
+	  solution using AGC approach
+***/
+
+
+/*** set parameters of CLUCalc ***/
+DefVarsN3();
+:IPNS; exibe o Inner-Product-Null-Space
+:DRAW_POINT_AS_SPHERE;
+_BGColor = White;
+_FrameBoxSize = 0;
+SetPointSize(5); 
+SetLineWidth(3);
+
+// Number of decimal digits used 
+// when evaluating mathematical 
+// functions internally (obs: max = 12)
+SetEvalPrec(12);
+
+// Number of decimal digits 
+// used when printing scalar values
+SetTextPrec(12);
+
+
+/*** define objects in conformal space ***/
+// define spheres
+r1 = 1.3;
+c1 = VecN3(-3,-1.1133,1.3268);
+:Color(0.200, 1.000, 0.200, 0.1);
+:S1 = c1 - ((r1*r1)/2)*einf;
+
+r2 = 3.1102;
+c2 = VecN3(-4,0,0);
+:Color(1.000, 0.200, 0.200, 0.1);
+:S2 = c2 - ((r2*r2)/2)*einf;
+
+// define spherical shell
+r3 = 1.50;
+c3 = VecN3(0,0,0);
+:Color(0.200, 0.200, 1.000, 0.05);
+:S3 = c3 - ((r3*r3)/2)*einf;
+
+r3b = 3.7;
+:Color(0.200, 0.200, 1.000, 0.1);
+:S3b = c3 - ((r3b*r3b)/2)*einf;
+
+/*** compute intersection using outer product ***/
+// compute C: the intesection of spheres S1 and S2
+:Red;
+:C = S1^S2;
+
+
+/*** compute t_under t_over ***/
+sigma_under = C^S3; sigma_over = C^S3b;
+?t_under = sigma_under.(~(sigma_under));
+?t_over = sigma_over.(~(sigma_over));
+
+
+/*** extract points and parameters ***/
+// compute pair points Pp
+Pp = S3b^C;
+
+// extract points of pair points
+?P1 = (sqrt((*(Pp)).(*(Pp)))-(*(Pp)))/(einf.(*(Pp)));
+?P2 = -1*(sqrt((*(Pp)).(*(Pp)))+(*(Pp)) )/(einf.(*(Pp)));
+:Green;
+:P1;
+:Blue;
+:P2;
+
+// extract the center of circle C
+?center = -0.5*(C*einf*C)/((einf*C)*(einf*C));
+
+// normalize the central point
+?center_normalized = center/(-einf.center);
+?center_normalized_euclidean = VecE3(center_normalized);
+
+// extract the radius of the circle C
+?radius_circle = sqrt(-(C*C)/((C.einf)*(C.einf)));
+
+/*** reduce de radius of spherical shell ***/
+// obtain the projection
+?sigma_p = einf.C;
+?P = (c3.(1/sigma_p))*sigma_p;
+?a = c3.P;
+?d_c3_center_circle = sqrt(-2*c3.center_normalized);
+?b = sqrt(d_c3_center_circle*d_c3_center_circle - a*a);
+?d_min = sqrt(a*a+(b-radius_circle)*(b-radius_circle));
+?d_max = sqrt(a*a+(b+radius_circle)*(b+radius_circle));
+
+
+/*** define spherical shell part of solution ***/
+?d3_min_updated = max([d_min,r3]);
+
+// redefine the spherical shell
+// consedering only points in solution
+?r4 = d3_min_updated;
+c4 = c3;
+S4 = c4 - ((r4*r4)/2)*einf;
+:Color(0.100, 0.100, 0.3000, 0.1);
+:S4;
+
+r4b = r3b;
+S4b = c4 - ((r4b*r4b)/2)*einf;
+:Color(0.100, 0.100, 0.300, 0.1);
+:S4b;
+
+
+/*** plot same points of solution 
+	 in Euclidean space 
+***/
+i = 0;
+nn = 7;
+crmin = r4;
+crmax = r4b;
+//SetPointSize(3);
+loop
+{
+if (i > nn)
+  break;
+//?i;
+cr = crmin + (crmax - crmin)/nn*i;
+r = cr;
+:Color(0.100, 0.100, 0.3000, 0.018);
+:Sr = c4-(r*r)/2*einf;
+//:Black;
+:Color(0.100, 0.100, 0.3000, 0.7);
+if (i == 0 ){
+	Ppr = C^Sr;
+	SetPointSize(5);
+	:(sqrt(-1*(*(Ppr)).(*(Ppr)))-(*(Ppr)))/(einf.(*(Ppr)));
+} else
+	:Ppr = C^Sr;
+i = i + 1;
+}
